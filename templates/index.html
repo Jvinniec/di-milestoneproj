@@ -1,48 +1,26 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Application providing the user access to various stock market indices.">
-    <meta name="author" content="@jvinniec">
-    <!-- <link rel="icon" href="favicon.ico"> -->
+{% extends "base.html" %}
 
-    <title>Stock Ticker</title>
-
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  </head>
-  <body>
-
-    <!-- Top menu -->
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12 text-left">
-          <h2>Menu</h2>
-          <ul>
-            <li><a href="/about">About</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
+{% block content %}
 
     <!-- User input space -->
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-left">
-          <form id="form">
-            <label for="sname">Stock Name:</label>
-            <input type="text" id="sname" name="sname"><br><br>
+          <form action="{{ url_for('read_form') }}" id="form" method="POST">
+            <b>Stock Name:</b> (separate multiple names by ',')<br>
+            <input type="text" id="sname" name="sname"><br>
+            <br>
+            <b>Major indices to include:</b><br>
+            <input type='checkbox' name='djia'   value='True' unchecked> Dow Jones Industrial Average<br>
+            <input type='checkbox' name='sp500'  value='True' unchecked> S&P 500<br>
+            <input type='checkbox' name='nasdaq' value='True' unchecked> NASDAQ Composite<br>
+            <br>
             <b>Information to plot:</b><br>
-            <input type="radio" id="open" name="plotinfo" value="open">
-            <label for="male">Open</label><br>
-            <input type="radio" id="close" name="plotinfo" value="close">
-            <label for="female">Close</label><br>
-            <input type="radio" id="high" name="plotinfo" value="high">
-            <label for="other">High</label><br>
-            <input type="radio" id="low" name="plotinfo" value="low">
-            <label for="other">Low</label>
-            <br><br>
+            <input type="radio" id="open"  name="plotinfo" value="open"> Open<br>
+            <input type="radio" id="close" name="plotinfo" value="close"> Close<br>
+            <input type="radio" id="high"  name="plotinfo" value="high"> High<br>
+            <input type="radio" id="low"   name="plotinfo" value="low"> Low<br>
+            <br>
             <button type="submit" value="Submit">Submit</button>
             <button type="reset" value="Reset">Reset</button>
           </form>
@@ -58,15 +36,22 @@
       </div>  
     </div>
     <!-- Simple footer -->
-    <footer>
-      <p>© 2020 J. V. Cardenzana</p>
-      <p>This app made possible by viewers like you</p>
-    </footer>
+    <br>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-left">
+          <footer>
+            <p>© 2020 J. V. Cardenzana</p>
+            <p>This app made possible by viewers like you</p>
+          </footer>
+        </div>
+      </div>  
+    </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  </body>
-</html>
+
+  {% endblock %}
