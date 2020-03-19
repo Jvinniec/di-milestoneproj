@@ -7,7 +7,6 @@ import os
 from alpha_vantage.timeseries import TimeSeries
 
 from bokeh.plotting          import figure
-from bokeh.sampledata.stocks import MSFT
 from bokeh.embed             import components
 
 # Define a class for holding the market data
