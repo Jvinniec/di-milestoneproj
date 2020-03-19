@@ -1,5 +1,17 @@
 {% extends "base.html" %}
 
+<!-- Title -->
+{% block title %}Stock Ticker{% endblock %}
+
+{% block head_scripts %}
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.0.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.0.0.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.0.min.js"
+        crossorigin="anonymous"></script>
+{{ plots_script|safe }}
+{% endblock %}
 {% block content %}
 
     <!-- User input space -->
@@ -31,7 +43,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-left">
-          
+          {{ plots_div|safe }}
         </div>
       </div>  
     </div>
