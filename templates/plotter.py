@@ -1,40 +1,23 @@
-from math import pi
-import json
-import pandas as pd
-
-from bokeh.plotting          import figure
-from bokeh.sampledata.stocks import MSFT
-from bokeh.embed             import components
-
-def plot_candlesticks():
+from templates.marketdata import MarketData
     
-    df = pd.DataFrame(MSFT)[:50]
-    df["date"] = pd.to_datetime(df["date"])
 
-    inc = df.close > df.open
-    dec = df.open > df.close
-    w = 12*60*60*1000 # half day in ms
-
-    TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
-
-    p = figure(x_axis_type="datetime", tools=TOOLS, plot_width=1000, title = "MSFT Candlestick")
-    p.xaxis.major_label_orientation = pi/4
-    p.grid.grid_line_alpha=0.3
-
-    p.segment(df.date, df.high, df.date, df.low, color="black")
-    p.vbar(df.date[inc], w, df.open[inc], df.close[inc], fill_color="#D5E1DD", line_color="black")
-    p.vbar(df.date[dec], w, df.open[dec], df.close[dec], fill_color="#F2583E", line_color="black")
-
-    return components(p)
-    
+market_data = MarketData()
 
 def plot_stocks(form):
-    ret = dict()
-    ret['stocks']   = form.get('sname')
-    ret['plotinfo'] = form.get('plotinfo')
-    ret['djia']     = bool(form.get('djia'))
-    ret['sp500']    = bool(form.get('sp500'))
-    ret['nasdaq']   = bool(form.get('nasdaq'))
-    print(ret['stocks'])
-    return plot_candlesticks()
-    #return plot_candlesticks()
+    # Extract the data from the user submitted form
+    symbols = form.get('sname').split(',')
+    form.get('plotinfo')
+    print(form.get('plotinfo'))
+    if bool(form.get('djia')):
+        symbols.append('DJI')
+
+    if bool(form.get('sp500')):
+        symbols.append('SPX')
+
+    if bool(form.get('nasdaq')):
+        pass
+    
+    # Update the data
+    market_data.queryStocks(symbols)
+
+    return market_data.plot(symbols)
