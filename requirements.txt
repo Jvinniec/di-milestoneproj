@@ -4,3 +4,4 @@ flask
 pandas
 bokeh
 alpha_vantage
+numpy
