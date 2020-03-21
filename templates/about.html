@@ -1,12 +1,25 @@
 {% extends "base.html" %}
 
+{% block title %}About{% endblock %}
+
 {% block content %}
 
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-left">
           <h2>About</h2>
-          <p><a href="/">Home</a></p>
+          <p>
+            Created: March 2020<br>
+            Author: J. V. Cardenzana (<a href="https://www.linkedin.com/in/joshcardenzana/">LinkedIn</a>, <a href="https://github.com/Jvinniec">GitHub</a>)
+          </p>
+          <p>
+            This application makes heavy use of the following frameworks:
+            <ul>
+              <li><a href="https://docs.bokeh.org/en/latest/index.html">Bokeh</a> (plotting)</li>
+              <li><a href="https://www.alphavantage.co/">Alpha Vantage</a> (stock data)</li>
+              <li><a href="https://palletsprojects.com/p/flask/">Flask</a> (backend web server)</li>
+            </ul>
+          </p>
         </div>
       </div>
     </div>
