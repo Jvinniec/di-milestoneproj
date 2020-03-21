@@ -39,5 +39,5 @@ def read_form():
                             symbols=f"{symbols}", cbf=cbf)
 
 if __name__ == '__main__':
-    app.debug = True
+    app.debug = False
     app.run(port=33507)
