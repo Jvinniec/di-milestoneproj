@@ -109,7 +109,6 @@ class MarketData:
                 else:
                     info_df = pd.DataFrame([[sym, sym]],
                                            columns=['1. symbol', '2. name'])
-                    print(info_df.head())
                 
                 # Store the dataframe
                 self.stock_data[sym] = market_df.rename(columns=self.data_cols)
