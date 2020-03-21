@@ -13,6 +13,7 @@ from alpha_vantage.timeseries import TimeSeries
 from bokeh.plotting import figure, ColumnDataSource
 from bokeh.embed    import components
 from bokeh.models   import HoverTool, Range1d
+from bokeh.layouts import gridplot
 
 # Define a class for holding the market data
 class MarketData:
@@ -117,6 +118,37 @@ class MarketData:
         return errMsg
         
 
+    def moving_avg(self, values, window=5):
+        """ Compute the moving average for a distribution
+
+        Parameters
+        ----------
+        values : array
+            Array object of values to compute the moving avarage of
+        window : int
+            Number of values to compute the average for
+        
+        Returns
+        -------
+        Array representing the moving average
+        """
+        # Create a return array
+        size  = len(values)
+        mvavg = np.zeros(size)
+
+        # Loop through the list of values
+        w2 = int(window/2)
+        for i in range(size):
+            # Get the range for summing
+            start = i-w2 if i>=w2 else 0
+            stop  = i+w2 if i<size-w2 else size-1
+            
+            # Compute moving average
+            mvavg[i] = np.sum(values[start:stop+1]) / (stop-start+1)
+
+        return mvavg
+
+
     def plotCandlesticks(self, symbol, days2show=100):
         """ Plots the stock information for all symbols in 'symbols'.
 
@@ -155,28 +187,46 @@ class MarketData:
         # Define the tools for user manipulation of figure
         TOOLS = ['pan','wheel_zoom','box_zoom','reset','save', hover]
 
-        # Specify the range of the x,y axes
+        # Specify the range of the x,y axes for visibility
         xstop  = df.datetime[0] + relativedelta(days=3)
         xstart = xstop - relativedelta(days=days2show)
         ystart = 0.95 * np.min(df.low[:days2show])
         ystop  = 1.05 * np.max(df.high[:days2show])
 
         # Setup the figure for plotting
-        p = figure(x_axis_type="datetime", tools=TOOLS, 
+        p1 = figure(x_axis_type='datetime', tools=TOOLS, 
                    x_range=(xstart, xstop), y_range=(ystart,ystop),
-                   x_axis_label='Date', y_axis_label='Price ($USD)',
-                   plot_width=750, plot_height=400, 
+                   x_axis_location='above', y_axis_label='Price ($USD)',
+                   plot_width=750, plot_height=300, 
                    title=f"Stock Price Data: {info['name'][0]}")
-        p.xaxis.major_label_orientation = pi/4
-        p.grid.grid_line_alpha=0.3
+        p1.grid.grid_line_alpha=0.3
 
         # Generate the plots
-        p.segment('datetime', 'high', 'datetime', 'low', source=ColumnDataSource(df),
+        p1.segment('datetime', 'high', 'datetime', 'low', source=ColumnDataSource(df),
                    color="black", line_width=2, name='segments')
-        p.vbar(df.datetime[inc], w, df.open[inc], df.close[inc], 
-               fill_color=self.colors['inc'], line_color="black", name='incbar')
-        p.vbar(df.datetime[dec], w, df.open[dec], df.close[dec], 
-               fill_color=self.colors['dec'], line_color="black", name='decbar')
+        p1.vbar(df.datetime[inc], w, df.open[inc], df.close[inc], name='incbar',
+               fill_color=self.colors['inc'], line_color="black", line_width=0.5)
+        p1.vbar(df.datetime[dec], w, df.open[dec], df.close[dec], name='decbar',
+               fill_color=self.colors['dec'], line_color="black", line_width=0.5)
+
+        # Get moving average of high and low
+        mvavg_lo = self.moving_avg(df.low.to_numpy())
+        mvavg_hi = self.moving_avg(df.high.to_numpy())
+
+        # p.line(df.datetime, mvavg_hi, line_color='blue')
+        # p.line(df.datetime, mvavg_lo, line_color='red')
+
+        p2 = figure(x_axis_type="datetime",x_range=p1.x_range,
+                    x_axis_label='Date', y_axis_label=r'Volume (millions)',
+                    plot_width=750, plot_height=140)
+        p2.grid.grid_line_alpha=0.3
+        p2.vbar(df.datetime[inc], w, 0, df.volume[inc]*1e-6, fill_color=self.colors['inc'], 
+                line_color='black', line_width=0.5)
+        p2.vbar(df.datetime[dec], w, 0, df.volume[dec]*1e-6, fill_color=self.colors['dec'], 
+                line_color='black', line_width=0.5)
+        
+        # Combine all the plots
+        p = gridplot([p1, p2], ncols=1)
 
         return p
 
