@@ -90,7 +90,25 @@ class MarketData:
                 try:
                     # Get info regarding this symbol
                     if sym not in ['DJI','SPX']:
-                        info = self.timeseries.get_symbol_search(sym)
+                        try:
+                            # Download information about the stock symbol
+                            info = self.timeseries.get_symbol_search(sym)
+                            info_df = pd.DataFrame(info[0])
+                            info_df.index = info_df.index.astype(int)
+                            info_df['9. matchScore'] = info_df['9. matchScore'].astype(float)
+                        except IndexError as err:
+                            errMsg = f'Symbol not found: {sym}'
+                            break
+                        
+                        # If the first symbol does not return a 100% value
+                        if (info_df['9. matchScore'][0] < 1.0):
+                            raise ValueError(self.format_symbol_opts(sym, info_df))
+                            break
+
+                    # Handle stock indexes for Dow and S&P
+                    else:
+                        info_df = pd.DataFrame([[sym, sym]],
+                                                columns=['1. symbol', '2. name'])
                     
                     # Get the data for this symbol
                     dat = self.timeseries.get_daily_adjusted(symbol=sym, outputsize='full')
@@ -102,20 +120,41 @@ class MarketData:
                 market_df = pd.DataFrame(dat[0])
                 market_df['datetime'] = pd.to_datetime(market_df.index)
                 
-                # Extract info as dataframe
-                if sym not in ['DJI','SPX']:
-                    info_df = pd.DataFrame(info[0])
-                    info_df.index = info_df.index.astype(int)
-                else:
-                    info_df = pd.DataFrame([[sym, sym]],
-                                           columns=['1. symbol', '2. name'])
-                
                 # Store the dataframe
                 self.stock_data[sym] = market_df.rename(columns=self.data_cols)
                 self.stock_info[sym] = info_df.rename(columns=self.info_cols)
 
         return errMsg
         
+
+    def format_symbol_opts(self, sym, df):
+        """ Format returned symbol information for easy to read info
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Represents the returned information 
+
+        Returns
+        -------
+        Formatted list of similar sybols
+        """
+        n = '<br/>'
+
+        # Setup the message
+        message  = f"No symbol matching \"{sym}\" found.{n}Try one of the following:{n}{n}"
+        message += f" Symbol (<i>Name, Region</i>){n}"
+        message += f"------------------------{n}"
+
+        # Append each possible match
+        for row in df.itertuples():
+            new_sym  = row[1]
+            new_name = row[2]
+            region   = row[4]
+            message += f" {new_sym: <8} (<i>{new_name}, {region}</i>){n}"
+
+        return message
+
 
     def moving_avg(self, values, window=5):
         """ Compute the moving average for a distribution
@@ -197,7 +236,7 @@ class MarketData:
                    x_range=(xstart, xstop), y_range=(ystart,ystop),
                    x_axis_location='above', y_axis_label='Price ($USD)',
                    plot_width=750, plot_height=300, 
-                   title=f"Stock Price Data: {info['name'][0]}")
+                   title=f"Stock Price Data: {info['name'][0]} ({info['symbol'][0]})")
         p1.grid.grid_line_alpha=0.3
 
         # Generate the plots
